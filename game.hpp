@@ -29,8 +29,11 @@ struct Skenario {
     Keputusan keputusan_2;
 };
 
+void clearScreen();
+void delay(int ms);
 void tampilkanStatistik(const Statistik &pemain);
 void tampilkanSkenario(const Skenario &skenario);
+void batasiStat(int &nilai);
 void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan);
 bool periksaKalah(const Statistik &pemain);
 
