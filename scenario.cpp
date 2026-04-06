@@ -1,6 +1,6 @@
 #include "scenario.hpp"
 
-static Skenario skenarioList[60] = 
+static Skenario skenarioList[48] = 
 {
     {
         "Perusahaan swasta meminta izin untuk membuka lahan sawit di hutan lindung.",
@@ -239,6 +239,50 @@ static Skenario skenarioList[60] =
         "Gerakan separatis muncul di daerah tertentu.",
         {"Pendekatan militer", -5, -5, +10, 0},
         {"Dialog damai", 0, +10, -5, 0}
+    },
+
+    {
+        "Harga bahan bakar naik drastis akibat krisis global.",
+        {"Naikkan subsidi", -10, +10, 0, -5},
+        {"Biarkan harga pasar", +10, -10, 0, +5}
+    },
+
+    {
+        "Kelompok masyarakat menuntut reformasi pendidikan nasional.",
+        {"Setujui reformasi", -5, +15, 0, +5},
+        {"Tolak perubahan", +5, -10, 0, 0}
+    },
+
+    {
+        "Negara tetangga meningkatkan aktivitas militer di perbatasan.",
+        {"Perkuat militer", -10, -5, +15, 0},
+        {"Diplomasi damai", +5, +5, -5, 0}
+    },
+
+    {
+        "Terjadi kebakaran hutan besar di beberapa wilayah.",
+        {"Kirim bantuan besar", -10, +5, 0, +15},
+        {"Biarkan daerah tangani sendiri", +5, -5, 0, -15}
+    },
+    {
+        "Investor asing ingin membangun pabrik besar di Indonesia.",
+        {"Terima investasi", +15, +5, 0, -10},
+        {"Tolak demi lingkungan", -10, 0, 0, +15}
+    },
+    {
+        "Terjadi demonstrasi besar menuntut transparansi pemerintah.",
+        {"Buka transparansi", -5, +15, 0, 0},
+        {"Batasi informasi", +5, -15, +5, 0}
+    },
+    {
+        "Program wajib militer diusulkan untuk meningkatkan pertahanan.",
+        {"Terapkan wajib militer", -5, -5, +15, 0},
+        {"Tolak usulan", +5, +5, -10, 0}
+    },
+    {
+        "Teknologi energi terbarukan mulai berkembang pesat.",
+        {"Investasi besar", -10, +5, 0, +15},
+        {"Tetap gunakan energi lama", +10, 0, 0, -10}
     }
 };
 
@@ -247,5 +291,5 @@ Skenario* daftarSkenario() {
 }
 
 int jumlahSkenario() {
-    return 60;
+    return 48;
 }
