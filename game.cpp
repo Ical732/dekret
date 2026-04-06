@@ -172,7 +172,7 @@ void menuUtama() {
         50, 50, 50};
     int bulan = 0;
 
-    string pilihan, konfirmasi;
+    string pilihan, konfirmasi, slot;
 
     while (true) {
         clearScreen();
@@ -206,38 +206,35 @@ void menuUtama() {
         else if (pilihan == "2") {
             clearScreen();
             cout << "Memuat save...\n";
-            delay(1000);
+            delay(800);
+
+            loadSaveList(saveList);
+
             clearScreen();
-
             tampilkanSlot(saveList);
-
-            char slot;
 
             while (true)
             {
                 cout << "Pilih slot (1-5) atau (q) untuk keluar: ";
                 cin >> slot;
 
-                if (cin.fail())
+                if (slot.length() == 1 && slot[0] >= '1' && slot[0] <= '5')
                 {
-                    cin.clear();
-                    cin.ignore(1000, '\n');
-                    cout << "Input tidak valid!\n";
-                    continue;
-                }
+                    int slotAngka = slot[0] - '0';
 
-                cin.ignore(1000, '\n');
+                    cout << "Memuat game...\n";
+                    delay(800);
 
-                if (slot >= '1' && slot <= '5')
-                {
-                    int slotAngka = slot - '0';
                     if (muatDariSlot(slotAngka, pemain, bulan)) {
                         clearScreen();
                         jalankanGame(pemain, bulan, saveList);
+                    } else {
+                        cout << "Slot kosong!\n";
+                        delay(800);
                     }
                     break;
                 }
-                else if (slot == 'q' || slot == 'Q')
+                else if (slot == "q" || slot == "Q")
                 {
                     clearScreen();
                     break;
@@ -248,7 +245,6 @@ void menuUtama() {
                     pauseScreen();
                     clearScreen();
                 }
-                cout << endl;
             }
         }
         else if (pilihan == "3") {
@@ -259,26 +255,14 @@ void menuUtama() {
 
             tampilkanSlot(saveList);
 
-            char slot;
-
             while (true)
             {
                 cout << "Pilih slot (1-5) atau (c) untuk batal: ";
                 cin >> slot;
 
-                if (cin.fail())
+                if (slot.length() == 1 && slot[0] >= '1' && slot[0] <= '5')
                 {
-                    cin.clear();
-                    cin.ignore(1000, '\n');
-                    cout << "Input tidak valid!\n";
-                    continue;
-                }
-
-                cin.ignore(1000, '\n');
-
-                if (slot >= '1' && slot <= '5')
-                {
-                    int slotAngka = slot - '0';
+                    int slotAngka = slot[0] - '0';
 
                     cout << "Yakin ingin menghapus? (y/n): ";
                     string konfirmasi;
@@ -292,7 +276,7 @@ void menuUtama() {
 
                     break;
                 }
-                else if (slot == 'c' || slot == 'C')
+                else if (slot == "c" || slot == "C")
                 {
                     cout << "Batal.\n";
                     break;
@@ -440,6 +424,8 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
     bool kalah = false;
 
     for (int bulan = bulan_awal; bulan < totalSkenario; bulan++) {
+        clearScreen();
+
         int tahun = bulan / 12;
         int bulan_dalam_tahun = bulan % 12 + 1;
 
@@ -453,16 +439,13 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
         tampilkanSkenario(sekarang);
         cout << endl;
 
-        cout << "Pilih keputusan (1-2) atau (s) untuk save dan (q) untuk kembali ke menu utama." << endl;
+        cout << "Pilih keputusan (1-2) atau (s) untuk save dan (q) untuk kembali.\n\n";
 
-        cout << endl;
-
-        string pilihan, konfirmasi;
+        string pilihan, konfirmasi, slot;
 
         while (true) {
             cout << "Input: ";
             cin >> pilihan;
-
             cout << endl;
 
             if (pilihan == "1") {
@@ -472,7 +455,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
             } 
             else if (pilihan == "2") {
                 terapkanKeputusan(pemain, sekarang.keputusan_2);
-                tampilkanEfek(pemain, sekarang.keputusan_1);
+                tampilkanEfek(pemain, sekarang.keputusan_2);
                 break;
             }
             else if (pilihan == "q" || pilihan == "Q") {
@@ -481,41 +464,31 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
                 return;
             }
             else if (pilihan == "s" || pilihan == "S") {
+
                 while (true) {
                     cout << "Simpan game? (y/t): ";
                     cin >> konfirmasi;
-
                     cout << endl;
 
                     if (konfirmasi == "y" || konfirmasi == "Y") {
-                        tampilkanSlot(saveList);
 
-                        char slot;
+                        loadSaveList(saveList);
+                        tampilkanSlot(saveList);
 
                         while (true)
                         {
                             cout << "Pilih slot (1-5) atau batal (c): ";
                             cin >> slot;
-
                             cout << endl;
 
-                            if (cin.fail())
+                            if (slot.length() == 1 && slot[0] >= '1' && slot[0] <= '5')
                             {
-                                cin.clear();
-                                cin.ignore(1000, '\n');
-                                cout << "Input tidak valid!\n\n";
-                                continue;
-                            }
-
-                            cin.ignore(1000, '\n');
-
-                            if (slot >= '1' && slot <= '5')
-                            {
-                                int slotAngka = slot - '0';
+                                int slotAngka = slot[0] - '0';
                                 simpanKeSlot(saveList, slotAngka, pemain, bulan);
+                                delay(800);
                                 break;
                             }
-                            else if (slot == 'c' || slot == 'C')
+                            else if (slot == "c" || slot == "C")
                             {
                                 cout << "Batal menyimpan.\n\n";
                                 break;
@@ -523,10 +496,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
                             else
                             {
                                 cout << "Input tidak valid!\n\n";
-                                pauseScreen();
                             }
-
-                            cout << endl;
                         }
                         break;
                     }
@@ -549,22 +519,21 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
         }
 
         pauseScreen();
-
-        clearScreen();
     }
 
+    clearScreen();
+
     if (!kalah) {
-        cout << "\nSelamat! Anda berhasil menyelesaikan masa jabatan!\n";
+        cout << "Selamat! Anda berhasil menyelesaikan masa jabatan!\n";
+        delay(1500);
+
         if (pemain.ekonomi > 70 && pemain.masyarakat > 70) {
-            delay(5000);
             cout << "Rakyat makmur dan bahagia! Anda dikenang sebagai pemimpin hebat.\n";
         } 
         else if (pemain.militer > 80) {
-            delay(5000);
             cout << "Negara kuat, tetapi rakyat hidup dalam tekanan.\n";
         }
         else {
-            delay(5000);
             cout << "Anda bertahan, tetapi banyak masalah tersisa.\n";
         }
     }
@@ -572,4 +541,6 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
         delay(3000);
         cout << "\nGame Berakhir.\n";
     }
+
+    delay(2000);
 }
