@@ -37,6 +37,30 @@ struct SaveNode {
     SaveNode* next;
 };
 
+struct Efek
+{
+    string nama;
+
+    int ekonomi;
+    int masyarakat;
+    int militer;
+    int lingkungan;
+
+    int sisaTurn;
+};
+
+struct EfekNode
+{
+    Efek data;
+    EfekNode* next;
+};
+
+struct QueueEfek
+{
+    EfekNode* front;
+    EfekNode* rear;
+};
+
 void clearScreen();
 void delay(int ms);
 void tampilkanStatistik(const Statistik &pemain);
@@ -44,6 +68,13 @@ void tampilkanSkenario(const Skenario &skenario);
 void batasiStat(int &nilai);
 void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan);
 bool periksaKalah(const Statistik &pemain);
+
+void initQueue(QueueEfek &q);
+bool isQueueEmpty(QueueEfek &q);
+void enqueueEfek(QueueEfek &q, Efek efek);
+void dequeueEfek(QueueEfek &q);
+Efek* peekEfek(QueueEfek &q);
+void prosesEfekAktif(QueueEfek &q, Statistik &pemain);
 
 SaveNode* buatSaveList();
 void tampilkanSlot(SaveNode* head);

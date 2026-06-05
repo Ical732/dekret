@@ -165,6 +165,138 @@ void hapusSlot(SaveNode* head, int slot)
     }
 }
 
+void initQueue(QueueEfek &q)
+{
+    q.front = nullptr;
+    q.rear = nullptr;
+}
+
+bool isQueueEmpty(QueueEfek &q)
+{
+    return q.front == nullptr;
+}
+
+void enqueueEfek(QueueEfek &q, Efek efek)
+{
+    EfekNode* baru = new EfekNode;
+
+    baru->data = efek;
+    baru->next = nullptr;
+
+    if (isQueueEmpty(q))
+    {
+        q.front = baru;
+        q.rear = baru;
+    }
+    else
+    {
+        q.rear->next = baru;
+        q.rear = baru;
+    }
+}
+
+void dequeueEfek(QueueEfek &q)
+{
+    if (isQueueEmpty(q))
+    {
+        return;
+    }
+
+    EfekNode* hapus = q.front;
+
+    q.front = q.front->next;
+
+    delete hapus;
+
+    if (q.front == nullptr)
+    {
+        q.rear = nullptr;
+    }
+}
+
+Efek* peekEfek(QueueEfek &q)
+{
+    if (isQueueEmpty(q))
+    {
+        return nullptr;
+    }
+
+    return &q.front->data;
+}
+
+void prosesEfekAktif(QueueEfek &q, Statistik &pemain)
+{
+    if (isQueueEmpty(q))
+    {
+        return;
+    }
+
+    Efek* efek = peekEfek(q);
+
+    pemain.ekonomi += efek->ekonomi;
+    pemain.masyarakat += efek->masyarakat;
+    pemain.militer += efek->militer;
+    pemain.lingkungan += efek->lingkungan;
+
+    batasiStat(pemain.ekonomi);
+    batasiStat(pemain.masyarakat);
+    batasiStat(pemain.militer);
+    batasiStat(pemain.lingkungan);
+
+    cout << "\n=== EFEK AKTIF ===\n";
+        cout << efek->nama << endl;
+
+        if (efek->ekonomi != 0)
+        {
+            cout << "Ekonomi ";
+            
+            if (efek->ekonomi > 0)
+                cout << "+" << efek->ekonomi;
+            else
+                cout << efek->ekonomi;
+
+            cout << endl;
+        }
+
+        if (efek->masyarakat != 0)
+        {
+            cout << "Masyarakat ";
+
+            if (efek->masyarakat > 0)
+                cout << "+" << efek->masyarakat;
+            else
+                cout << efek->masyarakat;
+
+            cout << endl;
+        }
+
+        if (efek->militer != 0)
+        {
+            cout << "Militer ";
+
+            if (efek->militer > 0)
+                cout << "+" << efek->militer;
+            else
+                cout << efek->militer;
+
+            cout << endl;
+        }
+
+        if (efek->lingkungan != 0)
+        {
+            cout << "Lingkungan ";
+
+            if (efek->lingkungan > 0)
+                cout << "+" << efek->lingkungan;
+            else
+                cout << efek->lingkungan;
+
+            cout << endl;
+        }
+
+        cout << "Sisa Turn : " << efek->sisaTurn << endl;
+}
+
 void menuUtama() {
     SaveNode* saveList = buatSaveList();
     loadSaveList(saveList);
@@ -423,6 +555,23 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
     int totalSkenario = jumlahSkenario();
     bool kalah = false;
 
+    QueueEfek efekAktif;
+    initQueue(efekAktif);
+
+    Efek demo =
+    {
+        "Demonstrasi Besar",
+
+        0,
+        -5,
+        0,
+        0,
+
+        3
+    };
+
+    enqueueEfek(efekAktif, demo);
+
     for (int bulan = bulan_awal; bulan < totalSkenario; bulan++) {
         clearScreen();
 
@@ -431,6 +580,8 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
 
         cout << "----------------------------------\n";
         cout << "Masa Jabatan: " << tahun << " Tahun, " << bulan_dalam_tahun << " Bulan\n";
+
+        prosesEfekAktif(efekAktif, pemain);
 
         tampilkanStatistik(pemain);
         cout << endl;
