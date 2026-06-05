@@ -23,6 +23,69 @@ void delay(int ms) {
     Sleep(ms);
 }
 
+void initializeDecisionHistory(DecisionHistoryStack &decisionHistory)
+{
+    decisionHistory.top = -1;
+}
+
+void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string decisionText)
+{
+    string historyText = "Bulan " + to_string(month + 1) + ": " + decisionText;
+
+    if (decisionHistory.top < 511) {
+        decisionHistory.top++;
+        decisionHistory.history[decisionHistory.top] = historyText;
+    } else {
+        for (int index = 1; index <= 511; index++) {
+            decisionHistory.history[index - 1] = decisionHistory.history[index];
+        }
+
+        decisionHistory.history[511] = historyText;
+    }
+}
+
+void showDecisionHistory(const DecisionHistoryStack &decisionHistory)
+{
+    cout << "===============================\n";
+    cout << "        Riwayat Keputusan      \n";
+    cout << "===============================\n\n";
+
+    if (decisionHistory.top == -1) {
+        cout << "Belum ada riwayat keputusan.\n";
+    } else {
+        for (int index = 0; index <= decisionHistory.top; index++) {
+            cout << decisionHistory.history[index] << endl;
+        }
+    }
+
+    cout << "\n===============================\n";
+}
+
+void pauseAfterDecision(const DecisionHistoryStack &decisionHistory)
+{
+    string historyInput;
+
+    cin.ignore();
+
+    while (true) {
+        cout << "Input 'r' untuk memeriksa riwayat keputusan\n";
+        cout << "Tekan 'enter' untuk lanjut...";
+        getline(cin, historyInput);
+
+        if (historyInput == "r" || historyInput == "R") {
+            clearScreen();
+            showDecisionHistory(decisionHistory);
+            cout << "Tekan 'enter' untuk kembali...";
+            getline(cin, historyInput);
+            clearScreen();
+        } else if (historyInput == "") {
+            break;
+        } else {
+            cout << "\nInput tidak valid!\n\n";
+        }
+    }
+}
+
 SaveNode* buatSaveList() {
     SaveNode* head = nullptr;
     SaveNode* tail = nullptr;
@@ -299,6 +362,9 @@ void prosesEfekAktif(QueueEfek &q, Statistik &pemain)
 
 void menuUtama() {
     SaveNode* saveList = buatSaveList();
+    DecisionHistoryStack decisionHistory;
+
+    initializeDecisionHistory(decisionHistory);
     loadSaveList(saveList);
     Statistik pemain = {50, 
         50, 50, 50};
@@ -318,6 +384,7 @@ void menuUtama() {
         cout << "2. Muat Save\n";
         cout << "3. Hapus Save\n";
         cout << "4. Keluar\n";
+        cout << "R. Riwayat Keputusan\n";
         cout << "----------------------------\n";
         cout << "Pilihan: ";
         cin >> pilihan;
@@ -331,7 +398,7 @@ void menuUtama() {
 
                 clearScreen();
                 Statistik pemainBaru = {50, 50, 50, 50};
-                jalankanGame(pemainBaru, 0, saveList);
+                jalankanGame(pemainBaru, 0, saveList, decisionHistory);
                 break;
             }
         }
@@ -359,7 +426,7 @@ void menuUtama() {
 
                     if (muatDariSlot(slotAngka, pemain, bulan)) {
                         clearScreen();
-                        jalankanGame(pemain, bulan, saveList);
+                        jalankanGame(pemain, bulan, saveList, decisionHistory);
                     } else {
                         cout << "Slot kosong!\n";
                         delay(800);
@@ -425,6 +492,11 @@ void menuUtama() {
             cout << "Keluar...\n";
             delay(800);
             break;
+        }
+        else if (pilihan == "r" || pilihan == "R") {
+            clearScreen();
+            showDecisionHistory(decisionHistory);
+            pauseScreen();
         }
         else {
             cout << "Pilihan tidak valid.\n";
@@ -550,11 +622,11 @@ bool periksaKalah(const Statistik &pemain)
     return false;
 }
 
-void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
+void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, DecisionHistoryStack &decisionHistory) {
     Skenario* skenario = daftarSkenario();
     int totalSkenario = jumlahSkenario();
     bool kalah = false;
-
+    
     QueueEfek efekAktif;
     initQueue(efekAktif);
 
@@ -572,6 +644,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
 
     enqueueEfek(efekAktif, demo);
 
+
     for (int bulan = bulan_awal; bulan < totalSkenario; bulan++) {
         clearScreen();
 
@@ -581,7 +654,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
         cout << "----------------------------------\n";
         cout << "Masa Jabatan: " << tahun << " Tahun, " << bulan_dalam_tahun << " Bulan\n";
 
-        prosesEfekAktif(efekAktif, pemain);
+            prosesEfekAktif(efekAktif, pemain);
 
         tampilkanStatistik(pemain);
         cout << endl;
@@ -591,6 +664,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
         cout << endl;
 
         cout << "Pilih keputusan (1-2) atau (s) untuk save dan (q) untuk kembali.\n\n";
+        cout << "Input 'r' untuk memeriksa riwayat keputusan.\n\n";
 
         string pilihan, konfirmasi, slot;
 
@@ -601,11 +675,13 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
 
             if (pilihan == "1") {
                 terapkanKeputusan(pemain, sekarang.keputusan_1);
+                pushDecisionHistory(decisionHistory, bulan, sekarang.keputusan_1.teks);
                 tampilkanEfek(pemain, sekarang.keputusan_1);
                 break;
             } 
             else if (pilihan == "2") {
                 terapkanKeputusan(pemain, sekarang.keputusan_2);
+                pushDecisionHistory(decisionHistory, bulan, sekarang.keputusan_2.teks);
                 tampilkanEfek(pemain, sekarang.keputusan_2);
                 break;
             }
@@ -659,6 +735,24 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
                     }
                 }
             }
+            else if (pilihan == "r" || pilihan == "R") {
+                clearScreen();
+                showDecisionHistory(decisionHistory);
+                pauseScreen();
+                clearScreen();
+
+                cout << "----------------------------------\n";
+                cout << "Masa Jabatan: " << tahun << " Tahun, " << bulan_dalam_tahun << " Bulan\n";
+
+                tampilkanStatistik(pemain);
+                cout << endl;
+
+                tampilkanSkenario(sekarang);
+                cout << endl;
+
+                cout << "Pilih keputusan (1-2) atau (s) untuk save dan (q) untuk kembali.\n\n";
+                cout << "Input 'r' untuk memeriksa riwayat keputusan.\n\n";
+            }
             else {
                 cout << "Pilihan tidak valid!\n";
             }
@@ -669,7 +763,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList) {
             break;
         }
 
-        pauseScreen();
+        pauseAfterDecision(decisionHistory);
     }
 
     clearScreen();
