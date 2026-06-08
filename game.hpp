@@ -100,6 +100,7 @@ void prosesEfekAktif(QueueEfek &q, Statistik &pemain);
 
 void initializeDecisionHistory(DecisionHistoryStack &decisionHistory);
 void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string decisionText);
+bool popDecisionHistory(DecisionHistoryStack &decisionHistory);
 void showDecisionHistory(const DecisionHistoryStack &decisionHistory);
 
 SaveNode* buatSaveList();
