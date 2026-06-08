@@ -1,4 +1,5 @@
 #include "scenario.hpp"
+#include "game.hpp"
 
 static Skenario skenarioList[48] = 
 {
@@ -285,6 +286,324 @@ static Skenario skenarioList[48] =
         {"Tetap gunakan energi lama", +10, 0, 0, -10}
     }
 };
+
+Peristiwa* buatTreeMiliter()
+{
+    Peristiwa* root = new Peristiwa{
+        "Para jenderal mengeluhkan anggaran militer.",
+
+        {"Tambah anggaran", -10, 0, +10, 0},
+        {"Tolak permintaan", +5, -5, -10, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* dana = new Peristiwa{
+        "Anda memberi tambahan dana militer.",
+
+        {"Dukung penuh", 0, +5, +10, 0},
+        {"Awasi penggunaan dana", -10, -5, -5, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* tolak = new Peristiwa{
+        "Anda menolak permintaan mereka.",
+
+        {"Lakukan reformasi", 0, +5, 0, 0},
+        {"Abaikan keluhan", 0, -10, -20, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* loyal = new Peristiwa{
+        "Militer menjadi lebih loyal.",
+
+        {"Lanjut", 0, 0, 0, 0},
+        {"Lanjut", 0, 0, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* korupsi = new Peristiwa{
+        "Sebagian dana disalahgunakan.",
+
+        {"Lanjut", 0, 0, 0, 0},
+        {"Lanjut", 0, 0, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* reformasi = new Peristiwa{
+        "Militer menerima keputusan Anda.",
+
+        {"Lanjut", 0, 0, 0, 0},
+        {"Lanjut", 0, 0, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* kudeta = new Peristiwa{
+        "Sebagian petinggi mulai merencanakan kudeta.",
+
+        {"Lanjut", 0, 0, 0, 0},
+        {"Lanjut", 0, 0, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    root->pilihan_1 = dana;
+    root->pilihan_2 = tolak;
+
+    dana->pilihan_1 = loyal;
+    dana->pilihan_2 = korupsi;
+
+    tolak->pilihan_1 = reformasi;
+    tolak->pilihan_2 = kudeta;
+
+    return root;
+}
+
+Peristiwa* buatTreeMasyarakat()
+{
+    Peristiwa* root = new Peristiwa{
+        "Gelombang demonstrasi menuntut reformasi sosial terjadi di berbagai kota.",
+
+        {"Dengarkan tuntutan", -5, +10, 0, 0},
+        {"Kerahkan aparat", 0, -10, +10, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* dialog = new Peristiwa{
+        "Perwakilan demonstran bersedia berdialog.",
+
+        {"Bentuk tim reformasi", -10, +10, 0, 0},
+        {"Janji tanpa tindakan", 0, -5, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* represi = new Peristiwa{
+        "Aparat berhasil membubarkan demonstrasi.",
+
+        {"Perketat pengawasan", 0, -10, +5, 0},
+        {"Longgarkan setelah situasi tenang", 0, +5, -5, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* sukses = new Peristiwa{
+        "Kepercayaan publik meningkat.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* kecewa = new Peristiwa{
+        "Masyarakat mulai kecewa pada pemerintah.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* takut = new Peristiwa{
+        "Situasi terkendali, tetapi rakyat hidup dalam ketakutan.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* damai = new Peristiwa{
+        "Ketegangan sosial mulai mereda.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    root->pilihan_1 = dialog;
+    root->pilihan_2 = represi;
+
+    dialog->pilihan_1 = sukses;
+    dialog->pilihan_2 = kecewa;
+
+    represi->pilihan_1 = takut;
+    represi->pilihan_2 = damai;
+
+    return root;
+}
+
+Peristiwa* buatTreeEkonomi()
+{
+    Peristiwa* root = new Peristiwa{
+        "Perekonomian melambat dan investor mulai khawatir.",
+
+        {"Berikan insentif bisnis", +10, -5, 0, -5},
+        {"Fokus bantuan rakyat", -10, +10, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* investor = new Peristiwa{
+        "Investor merespons kebijakan Anda.",
+
+        {"Potong pajak perusahaan", +10, -5, 0, -5},
+        {"Batasi insentif", -5, +5, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* bantuan = new Peristiwa{
+        "Program bantuan sosial mulai berjalan.",
+
+        {"Perluas program", -10, +10, 0, 0},
+        {"Batasi anggaran", +5, -5, 0, 0},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* boom = new Peristiwa{
+        "Investasi meningkat pesat.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* stagnan = new Peristiwa{
+        "Ekonomi tetap stagnan.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* populer = new Peristiwa{
+        "Program sosial mendapat dukungan luas.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* defisit = new Peristiwa{
+        "Defisit anggaran mulai membesar.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    root->pilihan_1 = investor;
+    root->pilihan_2 = bantuan;
+
+    investor->pilihan_1 = boom;
+    investor->pilihan_2 = stagnan;
+
+    bantuan->pilihan_1 = populer;
+    bantuan->pilihan_2 = defisit;
+
+    return root;
+}
+
+Peristiwa* buatTreeLingkungan()
+{
+    Peristiwa* root = new Peristiwa{
+        "Aktivis lingkungan menyoroti kerusakan hutan yang semakin parah.",
+
+        {"Lindungi kawasan hutan", -5, +5, 0, +10},
+        {"Prioritaskan ekonomi", +10, -5, 0, -10},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* konservasi = new Peristiwa{
+        "Program konservasi mulai berjalan.",
+
+        {"Perluas kawasan lindung", -5, +5, 0, +10},
+        {"Cari kompromi dengan industri", +5, 0, 0, +5},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* eksploitasi = new Peristiwa{
+        "Perusahaan meminta izin tambahan.",
+
+        {"Setujui", +10, -5, 0, -10},
+        {"Batasi ekspansi", -5, +5, 0, +5},
+
+        nullptr,
+        nullptr
+    };
+
+    Peristiwa* hijau = new Peristiwa{
+        "Kondisi lingkungan membaik.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* seimbang = new Peristiwa{
+        "Pertumbuhan dan konservasi relatif seimbang.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* rusak = new Peristiwa{
+        "Kerusakan lingkungan meningkat drastis.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    Peristiwa* terkendali = new Peristiwa{
+        "Ekspansi industri berhasil dikendalikan.",
+        {"Lanjut",0,0,0,0},
+        {"Lanjut",0,0,0,0},
+        nullptr,nullptr
+    };
+
+    root->pilihan_1 = konservasi;
+    root->pilihan_2 = eksploitasi;
+
+    konservasi->pilihan_1 = hijau;
+    konservasi->pilihan_2 = seimbang;
+
+    eksploitasi->pilihan_1 = rusak;
+    eksploitasi->pilihan_2 = terkendali;
+
+    return root;
+}
+
+static EventKhusus daftarEvent[] =
+{
+    {12, buatTreeMiliter},
+    {24, buatTreeMasyarakat},
+    {36, buatTreeEkonomi},
+    {48, buatTreeLingkungan}
+};
+
+int jumlahEventKhusus()
+{
+    return sizeof(daftarEvent) / sizeof(daftarEvent[0]);
+}
+
+EventKhusus* ambilEventKhusus()
+{
+    return daftarEvent;
+}
 
 Skenario* daftarSkenario() {
     return skenarioList;

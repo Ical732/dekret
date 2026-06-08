@@ -23,6 +23,17 @@ void delay(int ms) {
     Sleep(ms);
 }
 
+void hapusTree(Peristiwa* root)
+{
+    if (root == nullptr)
+        return;
+
+    hapusTree(root->pilihan_1);
+    hapusTree(root->pilihan_2);
+
+    delete root;
+}
+
 void initializeDecisionHistory(DecisionHistoryStack &decisionHistory)
 {
     decisionHistory.top = -1;
@@ -453,7 +464,6 @@ void menuUtama() {
             clearScreen();
 
             tampilkanSlot(saveList);
-
             while (true)
             {
                 cout << "Pilih slot (1-5) atau (c) untuk batal: ";
@@ -562,6 +572,153 @@ void tampilkanEfek(const Statistik &pemain, const Keputusan &keputusan)
     cout << "----------------------------------" << endl;
 }
 
+void jalankanTree(
+    Peristiwa* root,
+    Statistik &pemain,
+    SaveNode* saveList,
+    DecisionHistoryStack &decisionHistory,
+    int bulan,
+    int tahun,
+    int bulan_dalam_tahun
+)
+{
+    Peristiwa* current = root;
+
+    string konfirmasi;
+    string slot;
+
+    tampilkanStatistik(pemain);
+
+    while (current != nullptr)
+    {
+        cout << endl;
+        cout << current->teks << endl;
+
+        if (current->pilihan_1 == nullptr &&
+            current->pilihan_2 == nullptr)
+        {
+            cout << "\nTekan enter untuk lanjut...";
+            cin.ignore();
+            cin.get();
+            break;
+        }
+
+        cout << "\n1. " << current->keputusan_1.teks << endl;
+        cout << "2. " << current->keputusan_2.teks << endl;
+        cout << endl;
+        cout << "Pilih keputusan (1-2) atau (s) untuk save dan (q) untuk kembali.\n\n";
+        cout << "Input 'r' untuk memeriksa riwayat keputusan.\n\n";
+
+        string pilih;
+        cout << "\nInput: ";
+        cin >> pilih;
+
+        cout << endl;
+
+        if (pilih == "1")
+        {
+            terapkanKeputusan(pemain, current->keputusan_1);
+
+            tampilkanEfek(pemain, current->keputusan_1);
+
+            current = current->pilihan_1;
+        }
+        else if (pilih == "2")
+        {
+            terapkanKeputusan(pemain, current->keputusan_2);
+
+            tampilkanEfek(pemain, current->keputusan_2);
+
+            current = current->pilihan_2;
+        }
+        else if (pilih == "q" || pilih == "Q")
+        {
+            cout << "Kembali ke menu utama...\n";
+            delay(800);
+            return;
+        }
+        else if (pilih == "s" || pilih == "S")
+        {
+            while (true)
+            {
+                cout << "Simpan game? (y/t): ";
+                cin >> konfirmasi;
+                cout << endl;
+
+                if (konfirmasi == "y" || konfirmasi == "Y")
+                {
+                    loadSaveList(saveList);
+                    tampilkanSlot(saveList);
+
+                    while (true)
+                    {
+                        cout << "Pilih slot (1-5) atau batal (c): ";
+                        cin >> slot;
+                        cout << endl;
+
+                        if (slot.length() == 1 &&
+                            slot[0] >= '1' &&
+                            slot[0] <= '5')
+                        {
+                            int slotAngka = slot[0] - '0';
+
+                            simpanKeSlot(
+                                saveList,
+                                slotAngka,
+                                pemain,
+                                bulan
+                            );
+
+                            delay(800);
+                            break;
+                        }
+                        else if (slot == "c" || slot == "C")
+                        {
+                            cout << "Batal menyimpan.\n\n";
+                            break;
+                        }
+                        else
+                        {
+                            cout << "Input tidak valid!\n\n";
+                        }
+                    }
+
+                    break;
+                }
+                else if (konfirmasi == "t" || konfirmasi == "T")
+                {
+                    break;
+                }
+                else
+                {
+                    cout << "Pilihan tidak valid.\n";
+                }
+            }
+        }
+        else if (pilih == "r" || pilih == "R")
+        {
+            clearScreen();
+            showDecisionHistory(decisionHistory);
+            pauseScreen();
+            clearScreen();
+
+            cout << "----------------------------------\n";
+            cout << "Masa Jabatan: "
+                 << tahun
+                 << " Tahun, "
+                 << bulan_dalam_tahun
+                 << " Bulan\n";
+
+            tampilkanStatistik(pemain);
+        }
+        else
+        {
+            cout << "Pilihan tidak valid!\n";
+            delay(800);
+        }
+    }
+}
+
 void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan) 
 {
     pemain.ekonomi += keputusan.pengaruhi_ekonomi;
@@ -626,35 +783,85 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
     Skenario* skenario = daftarSkenario();
     int totalSkenario = jumlahSkenario();
     bool kalah = false;
+
+    EventKhusus* eventList = ambilEventKhusus();
+    int totalEvent = jumlahEventKhusus();
     
     QueueEfek efekAktif;
     initQueue(efekAktif);
 
-    Efek demo =
+    // Efek demo =
+    // {
+    //     "Demonstrasi Besar",
+
+    //     0,
+    //     -5,
+    //     0,
+    //     0,
+
+    //     3
+    // };
+
+    // enqueueEfek(efekAktif, demo);
+
+
+    for (int bulan = bulan_awal; bulan < totalSkenario; bulan++)
     {
-        "Demonstrasi Besar",
+    clearScreen();
 
-        0,
-        -5,
-        0,
-        0,
+    int tahun = bulan / 12;
+    int bulan_dalam_tahun = bulan % 12 + 1;
 
-        3
-    };
+    cout << "----------------------------------\n";
+    cout << "Masa Jabatan: " << tahun << " Tahun, " << bulan_dalam_tahun << " Bulan\n";
 
-    enqueueEfek(efekAktif, demo);
+    prosesEfekAktif(efekAktif, pemain);
 
+    
 
-    for (int bulan = bulan_awal; bulan < totalSkenario; bulan++) {
-        clearScreen();
+    bool eventDitemukan = false;
 
-        int tahun = bulan / 12;
-        int bulan_dalam_tahun = bulan % 12 + 1;
+    for (int i = 0; i < totalEvent; i++)
+    {
+        if (eventList[i].bulanMuncul == bulan + 1)
+        {
+            Peristiwa* eventTree = eventList[i].buatTree();
 
-        cout << "----------------------------------\n";
-        cout << "Masa Jabatan: " << tahun << " Tahun, " << bulan_dalam_tahun << " Bulan\n";
+            jalankanTree(
+                eventTree,
+                pemain,
+                saveList,
+                decisionHistory,
+                bulan,
+                tahun,
+                bulan_dalam_tahun
+            );
 
-            prosesEfekAktif(efekAktif, pemain);
+            hapusTree(eventTree);
+
+            if (periksaKalah(pemain))
+            {
+                kalah = true;
+                break;
+            }
+
+            eventDitemukan = true;
+            break;
+        }
+    }
+
+    if (kalah)
+    {
+        break;
+    }
+
+    if (eventDitemukan)
+    {
+        continue;
+    }
+    else
+    {
+        prosesEfekAktif(efekAktif, pemain);
 
         tampilkanStatistik(pemain);
         cout << endl;
@@ -758,33 +965,24 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
             }
         }
 
+        }
+        
         if (periksaKalah(pemain)) {
             kalah = true;
             break;
         }
-
-        pauseAfterDecision(decisionHistory);
     }
 
     clearScreen();
 
-    if (!kalah) {
-        cout << "Selamat! Anda berhasil menyelesaikan masa jabatan!\n";
-        delay(1500);
-
-        if (pemain.ekonomi > 70 && pemain.masyarakat > 70) {
-            cout << "Rakyat makmur dan bahagia! Anda dikenang sebagai pemimpin hebat.\n";
-        } 
-        else if (pemain.militer > 80) {
-            cout << "Negara kuat, tetapi rakyat hidup dalam tekanan.\n";
-        }
-        else {
-            cout << "Anda bertahan, tetapi banyak masalah tersisa.\n";
-        }
-    }
-    else {
+    if (kalah)
+    {
         delay(3000);
         cout << "\nGame Berakhir.\n";
+    }
+    else
+    {
+        cout << "Selamat! Anda berhasil menyelesaikan masa jabatan 5 tahun!\n";
     }
 
     delay(2000);

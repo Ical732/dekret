@@ -3,6 +3,9 @@
 
 #include "game.hpp"
 
+EventKhusus* ambilEventKhusus();
+int jumlahEventKhusus();
+
 Skenario* daftarSkenario();
 int jumlahSkenario();
 

@@ -54,6 +54,22 @@ struct Efek
     int sisaTurn;
 };
 
+struct Peristiwa
+{
+    string teks;
+
+    Keputusan keputusan_1;
+    Keputusan keputusan_2;
+
+    Peristiwa* pilihan_1;
+    Peristiwa* pilihan_2;
+};
+
+struct EventKhusus {
+    int bulanMuncul;
+    Peristiwa* (*buatTree)();
+};
+
 struct EfekNode
 {
     Efek data;
@@ -70,6 +86,7 @@ void clearScreen();
 void delay(int ms);
 void tampilkanStatistik(const Statistik &pemain);
 void tampilkanSkenario(const Skenario &skenario);
+void tampilkanEfek(const Statistik &pemain, const Keputusan &keputusan);
 void batasiStat(int &nilai);
 void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan);
 bool periksaKalah(const Statistik &pemain);
@@ -92,5 +109,9 @@ bool muatDariSlot(int slot, Statistik &pemain, int &bulan);
 
 void menuUtama();
 void jalankanGame(Statistik &pemain, int bulanAwal, SaveNode* saveList, DecisionHistoryStack &decisionHistory);
+
+Peristiwa* buatTreeMiliter();
+void jalankanTree(Peristiwa* root, Statistik &pemain);
+void hapusTree(Peristiwa* root);
 
 #endif
