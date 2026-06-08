@@ -44,6 +44,16 @@ void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, strin
     }
 }
 
+bool popDecisionHistory(DecisionHistoryStack &decisionHistory)
+{
+    if (decisionHistory.top == -1) {
+        return false;
+    }
+
+    decisionHistory.top--;
+    return true;
+}
+
 void showDecisionHistory(const DecisionHistoryStack &decisionHistory)
 {
     cout << "===============================\n";
@@ -61,7 +71,7 @@ void showDecisionHistory(const DecisionHistoryStack &decisionHistory)
     cout << "\n===============================\n";
 }
 
-void pauseAfterDecision(const DecisionHistoryStack &decisionHistory)
+void pauseAfterDecision(DecisionHistoryStack &decisionHistory)
 {
     string historyInput;
 
@@ -75,8 +85,21 @@ void pauseAfterDecision(const DecisionHistoryStack &decisionHistory)
         if (historyInput == "r" || historyInput == "R") {
             clearScreen();
             showDecisionHistory(decisionHistory);
+            cout << "Input 'p' untuk menghapus riwayat terakhir\n";
             cout << "Tekan 'enter' untuk kembali...";
             getline(cin, historyInput);
+
+            if (historyInput == "p" || historyInput == "P") {
+                if (popDecisionHistory(decisionHistory)) {
+                    cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
+                } else {
+                    cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
+                }
+
+                cout << "Tekan 'enter' untuk kembali...";
+                getline(cin, historyInput);
+            }
+
             clearScreen();
         } else if (historyInput == "") {
             break;
@@ -496,7 +519,22 @@ void menuUtama() {
         else if (pilihan == "r" || pilihan == "R") {
             clearScreen();
             showDecisionHistory(decisionHistory);
-            pauseScreen();
+
+            cout << "Input 'p' untuk menghapus riwayat terakhir\n";
+            cout << "Tekan 'enter' untuk kembali...";
+            cin.ignore();
+            getline(cin, konfirmasi);
+
+            if (konfirmasi == "p" || konfirmasi == "P") {
+                if (popDecisionHistory(decisionHistory)) {
+                    cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
+                } else {
+                    cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
+                }
+
+                cout << "Tekan 'enter' untuk kembali...";
+                getline(cin, konfirmasi);
+            }
         }
         else {
             cout << "Pilihan tidak valid.\n";
@@ -738,7 +776,23 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
             else if (pilihan == "r" || pilihan == "R") {
                 clearScreen();
                 showDecisionHistory(decisionHistory);
-                pauseScreen();
+
+                cout << "Input 'p' untuk menghapus riwayat terakhir\n";
+                cout << "Tekan 'enter' untuk kembali...";
+                cin.ignore();
+                getline(cin, konfirmasi);
+
+                if (konfirmasi == "p" || konfirmasi == "P") {
+                    if (popDecisionHistory(decisionHistory)) {
+                        cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
+                    } else {
+                        cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
+                    }
+
+                    cout << "Tekan 'enter' untuk kembali...";
+                    getline(cin, konfirmasi);
+                }
+
                 clearScreen();
 
                 cout << "----------------------------------\n";
