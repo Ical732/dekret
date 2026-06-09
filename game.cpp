@@ -371,6 +371,7 @@ void prosesEfekAktif(QueueEfek &q, Statistik &pemain)
 
         dequeueEfek(q);
     }
+    cout << endl;
 }
 
 void menuUtama() {
@@ -591,6 +592,8 @@ void jalankanTree(
     string slot;
 
     tampilkanStatistik(pemain);
+
+    prosesEfekAktif(efekAktif, pemain);
 
     while (current != nullptr)
     {
@@ -846,10 +849,6 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
     cout << "----------------------------------\n";
     cout << "Masa Jabatan: " << tahun << " Tahun, " << bulan_dalam_tahun << " Bulan\n";
 
-    prosesEfekAktif(efekAktif, pemain);
-
-    
-
     bool eventDitemukan = false;
 
     for (int i = 0; i < totalEvent; i++)
@@ -893,10 +892,8 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
     }
     else
     {
-        prosesEfekAktif(efekAktif, pemain);
-
         tampilkanStatistik(pemain);
-        cout << endl;
+        prosesEfekAktif(efekAktif, pemain);
 
         Skenario sekarang = skenario[bulan];
         tampilkanSkenario(sekarang);
