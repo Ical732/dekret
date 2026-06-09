@@ -1,6 +1,47 @@
 #include "scenario.hpp"
 #include "game.hpp"
 
+Efek pengawasanMiliter =
+{
+    "Militer Mendominasi Politik",
+    0,
+    -3,
+    +2,
+    0,
+    6
+};
+
+Efek boomInvestasi =
+{
+    "Gelombang Investasi",
+    +4,
+    0,
+    0,
+    -1,
+    4
+};
+
+Efek demonstrasi =
+{
+    "Gelombang Demonstrasi",
+    0,
+    -5,
+    0,
+    0,
+    3
+};
+
+Efek polusi =
+{
+    "Polusi Industri",
+    +2,
+    0,
+    0,
+    -4,
+    6
+};
+
+
 static Skenario skenarioList[48] = 
 {
     {
@@ -17,7 +58,7 @@ static Skenario skenarioList[48] =
     {
         "Demo besar mahasiswa menuntut reformasi kebijakan.",
         {"Akomodasi tuntutan", -5, +10, 0, 0},
-        {"Kerahkan aparat", 0, -10, +10, 0}
+        {"Kerahkan aparat", 0, -10, +10, 0, &demonstrasi}
     },
 
     {
