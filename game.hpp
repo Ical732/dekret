@@ -13,6 +13,18 @@ struct Statistik
     int lingkungan;
 };
 
+struct Efek
+{
+    string nama;
+
+    int ekonomi;
+    int masyarakat;
+    int militer;
+    int lingkungan;
+
+    int sisaTurn;
+};
+
 struct Keputusan {
     string teks;
 
@@ -20,6 +32,8 @@ struct Keputusan {
     int pengaruhi_masyarakat;
     int pengaruhi_militer;
     int pengaruhi_lingkungan;
+
+    Efek* efekTambahan = nullptr;
 }; 
 
 struct Skenario {
@@ -40,18 +54,6 @@ struct SaveNode {
 struct DecisionHistoryStack {
     string history[512];
     int top;
-};
-
-struct Efek
-{
-    string nama;
-
-    int ekonomi;
-    int masyarakat;
-    int militer;
-    int lingkungan;
-
-    int sisaTurn;
 };
 
 struct Peristiwa
@@ -88,7 +90,11 @@ void tampilkanStatistik(const Statistik &pemain);
 void tampilkanSkenario(const Skenario &skenario);
 void tampilkanEfek(const Statistik &pemain, const Keputusan &keputusan);
 void batasiStat(int &nilai);
-void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan);
+void terapkanKeputusan(
+    Statistik &pemain,
+    const Keputusan &keputusan,
+    QueueEfek &efekAktif
+);
 bool periksaKalah(const Statistik &pemain);
 
 void initQueue(QueueEfek &q);
@@ -100,7 +106,6 @@ void prosesEfekAktif(QueueEfek &q, Statistik &pemain);
 
 void initializeDecisionHistory(DecisionHistoryStack &decisionHistory);
 void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string decisionText);
-bool popDecisionHistory(DecisionHistoryStack &decisionHistory);
 void showDecisionHistory(const DecisionHistoryStack &decisionHistory);
 
 SaveNode* buatSaveList();
@@ -112,7 +117,16 @@ void menuUtama();
 void jalankanGame(Statistik &pemain, int bulanAwal, SaveNode* saveList, DecisionHistoryStack &decisionHistory);
 
 Peristiwa* buatTreeMiliter();
-void jalankanTree(Peristiwa* root, Statistik &pemain);
+void jalankanTree(
+    Peristiwa* root,
+    Statistik &pemain,
+    SaveNode* saveList,
+    DecisionHistoryStack &decisionHistory,
+    int bulan,
+    int tahun,
+    int bulan_dalam_tahun,
+    QueueEfek &efekAktif
+);
 void hapusTree(Peristiwa* root);
 
 #endif
