@@ -39,9 +39,12 @@ void initializeDecisionHistory(DecisionHistoryStack &decisionHistory)
     decisionHistory.top = -1;
 }
 
-void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string decisionText)
+void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string scenarioText, string decisionText)
 {
-    string historyText = "Bulan " + to_string(month + 1) + ": " + decisionText;
+    string historyText =
+    "Bulan " + to_string(month + 1) +
+    " | Skenario: " + scenarioText +
+    " | Keputusan: " + decisionText;
 
     if (decisionHistory.top < 511) {
         decisionHistory.top++;
@@ -192,7 +195,7 @@ void tampilkanSlot(SaveNode* head) {
     cout << "---------------------------\n";
 }
 
-void simpanKeSlot(SaveNode* head, int pilihanSlot, Statistik pemain, int bulan) {
+void simpanKeSlot(SaveNode* head, int pilihanSlot, Statistik pemain, int bulan, const DecisionHistoryStack &history) {
     SaveNode* current = head;
 
     while (current != nullptr) {
@@ -209,6 +212,11 @@ void simpanKeSlot(SaveNode* head, int pilihanSlot, Statistik pemain, int bulan) 
             file << pemain.militer << endl;
             file << pemain.lingkungan << endl;
             file << bulan << endl;
+            file << history.top + 1 << endl;
+            for (int i = 0; i <= history.top; i++)
+            {
+                file << history.history[i] << endl;
+            }
 
             file.close();
 
@@ -219,7 +227,7 @@ void simpanKeSlot(SaveNode* head, int pilihanSlot, Statistik pemain, int bulan) 
     }
 }
 
-bool muatDariSlot(int slot, Statistik &pemain, int &bulan) {
+bool muatDariSlot(int slot, Statistik &pemain, int &bulan, DecisionHistoryStack &history) {
     string namaFile = "save_" + to_string(slot) + ".txt";
     ifstream file(namaFile);
 
@@ -233,6 +241,18 @@ bool muatDariSlot(int slot, Statistik &pemain, int &bulan) {
          >> pemain.militer
          >> pemain.lingkungan
          >> bulan;
+         initializeDecisionHistory(history);
+
+        int jumlahHistory;
+        file >> jumlahHistory;
+
+        file.ignore();
+        for (int i = 0; i < jumlahHistory; i++)
+        {
+            getline(file, history.history[i]);
+        }
+
+        history.top = jumlahHistory - 1;
 
     file.close();
     return true;
@@ -418,12 +438,13 @@ void menuUtama() {
         cout << "2. Muat Save\n";
         cout << "3. Hapus Save\n";
         cout << "4. Keluar\n";
-        cout << "R. Riwayat Keputusan\n";
         cout << "----------------------------\n";
         cout << "Pilihan: ";
         cin >> pilihan;
 
         if (pilihan == "1") {
+            initializeDecisionHistory(decisionHistory);
+
             while (true) {
                 clearScreen();
 
@@ -458,7 +479,7 @@ void menuUtama() {
                     cout << "Memuat game...\n";
                     delay(800);
 
-                    if (muatDariSlot(slotAngka, pemain, bulan)) {
+                    if (muatDariSlot(slotAngka, pemain, bulan, decisionHistory)) {
                         clearScreen();
                         jalankanGame(pemain, bulan, saveList, decisionHistory);
                     } else {
@@ -525,26 +546,6 @@ void menuUtama() {
             cout << "Keluar...\n";
             delay(800);
             break;
-        }
-        else if (pilihan == "r" || pilihan == "R") {
-            clearScreen();
-            showDecisionHistory(decisionHistory);
-
-            cout << "Input 'p' untuk menghapus riwayat terakhir\n";
-            cout << "Tekan 'enter' untuk kembali...";
-            cin.ignore();
-            getline(cin, konfirmasi);
-
-            if (konfirmasi == "p" || konfirmasi == "P") {
-                if (popDecisionHistory(decisionHistory)) {
-                    cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
-                } else {
-                    cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
-                }
-
-                cout << "Tekan 'enter' untuk kembali...";
-                getline(cin, konfirmasi);
-            }
         }
         else {
             cout << "Pilihan tidak valid.\n";
@@ -704,7 +705,8 @@ void jalankanTree(
                                 saveList,
                                 slotAngka,
                                 pemain,
-                                bulan
+                                bulan,
+                                decisionHistory
                             );
 
                             delay(800);
@@ -920,13 +922,13 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
 
             if (pilihan == "1") {
                 terapkanKeputusan(pemain, sekarang.keputusan_1);
-                pushDecisionHistory(decisionHistory, bulan, sekarang.keputusan_1.teks);
+                pushDecisionHistory(decisionHistory, bulan, sekarang.teks, sekarang.keputusan_1.teks);
                 tampilkanEfek(pemain, sekarang.keputusan_1);
                 break;
             } 
             else if (pilihan == "2") {
                 terapkanKeputusan(pemain, sekarang.keputusan_2);
-                pushDecisionHistory(decisionHistory, bulan, sekarang.keputusan_2.teks);
+                pushDecisionHistory(decisionHistory, bulan, sekarang.teks, sekarang.keputusan_2.teks);
                 tampilkanEfek(pemain, sekarang.keputusan_2);
                 break;
             }
@@ -956,7 +958,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
                             if (slot.length() == 1 && slot[0] >= '1' && slot[0] <= '5')
                             {
                                 int slotAngka = slot[0] - '0';
-                                simpanKeSlot(saveList, slotAngka, pemain, bulan);
+                                simpanKeSlot(saveList, slotAngka, pemain, bulan, decisionHistory);
                                 delay(800);
                                 break;
                             }

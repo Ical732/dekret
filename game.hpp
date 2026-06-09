@@ -99,14 +99,14 @@ Efek* peekEfek(QueueEfek &q);
 void prosesEfekAktif(QueueEfek &q, Statistik &pemain);
 
 void initializeDecisionHistory(DecisionHistoryStack &decisionHistory);
-void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string decisionText);
+void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, string scenarioText, string decisionText);
 bool popDecisionHistory(DecisionHistoryStack &decisionHistory);
 void showDecisionHistory(const DecisionHistoryStack &decisionHistory);
 
 SaveNode* buatSaveList();
 void tampilkanSlot(SaveNode* head);
-void simpanKeSlot(SaveNode* head, int slot, Statistik pemain, int bulan);
-bool muatDariSlot(int slot, Statistik &pemain, int &bulan);
+void simpanKeSlot(SaveNode* head, int slot, Statistik pemain, int bulan, const DecisionHistoryStack &history);
+bool muatDariSlot(int slot, Statistik &pemain, int &bulan, DecisionHistoryStack &history);
 
 void menuUtama();
 void jalankanGame(Statistik &pemain, int bulanAwal, SaveNode* saveList, DecisionHistoryStack &decisionHistory);
