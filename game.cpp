@@ -55,16 +55,6 @@ void pushDecisionHistory(DecisionHistoryStack &decisionHistory, int month, strin
     }
 }
 
-bool popDecisionHistory(DecisionHistoryStack &decisionHistory)
-{
-    if (decisionHistory.top == -1) {
-        return false;
-    }
-
-    decisionHistory.top--;
-    return true;
-}
-
 void showDecisionHistory(const DecisionHistoryStack &decisionHistory)
 {
     cout << "===============================\n";
@@ -82,7 +72,7 @@ void showDecisionHistory(const DecisionHistoryStack &decisionHistory)
     cout << "\n===============================\n";
 }
 
-void pauseAfterDecision(DecisionHistoryStack &decisionHistory)
+void pauseAfterDecision(const DecisionHistoryStack &decisionHistory)
 {
     string historyInput;
 
@@ -96,21 +86,8 @@ void pauseAfterDecision(DecisionHistoryStack &decisionHistory)
         if (historyInput == "r" || historyInput == "R") {
             clearScreen();
             showDecisionHistory(decisionHistory);
-            cout << "Input 'p' untuk menghapus riwayat terakhir\n";
             cout << "Tekan 'enter' untuk kembali...";
             getline(cin, historyInput);
-
-            if (historyInput == "p" || historyInput == "P") {
-                if (popDecisionHistory(decisionHistory)) {
-                    cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
-                } else {
-                    cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
-                }
-
-                cout << "Tekan 'enter' untuk kembali...";
-                getline(cin, historyInput);
-            }
-
             clearScreen();
         } else if (historyInput == "") {
             break;
@@ -341,57 +318,59 @@ void prosesEfekAktif(QueueEfek &q, Statistik &pemain)
     batasiStat(pemain.lingkungan);
 
     cout << "\n=== EFEK AKTIF ===\n";
-        cout << efek->nama << endl;
+    cout << efek->nama << endl;
 
-        if (efek->ekonomi != 0)
-        {
-            cout << "Ekonomi ";
-            
-            if (efek->ekonomi > 0)
-                cout << "+" << efek->ekonomi;
-            else
-                cout << efek->ekonomi;
+    if (efek->ekonomi != 0)
+    {
+        cout << "Ekonomi ";
+        if (efek->ekonomi > 0)
+            cout << "+" << efek->ekonomi;
+        else
+            cout << efek->ekonomi;
+        cout << endl;
+    }
 
-            cout << endl;
-        }
+    if (efek->masyarakat != 0)
+    {
+        cout << "Masyarakat ";
+        if (efek->masyarakat > 0)
+            cout << "+" << efek->masyarakat;
+        else
+            cout << efek->masyarakat;
+        cout << endl;
+    }
 
-        if (efek->masyarakat != 0)
-        {
-            cout << "Masyarakat ";
+    if (efek->militer != 0)
+    {
+        cout << "Militer ";
+        if (efek->militer > 0)
+            cout << "+" << efek->militer;
+        else
+            cout << efek->militer;
+        cout << endl;
+    }
 
-            if (efek->masyarakat > 0)
-                cout << "+" << efek->masyarakat;
-            else
-                cout << efek->masyarakat;
+    if (efek->lingkungan != 0)
+    {
+        cout << "Lingkungan ";
+        if (efek->lingkungan > 0)
+            cout << "+" << efek->lingkungan;
+        else
+            cout << efek->lingkungan;
+        cout << endl;
+    }
 
-            cout << endl;
-        }
+    efek->sisaTurn--;
 
-        if (efek->militer != 0)
-        {
-            cout << "Militer ";
+    cout << "Sisa Turn : " << efek->sisaTurn << endl;
 
-            if (efek->militer > 0)
-                cout << "+" << efek->militer;
-            else
-                cout << efek->militer;
+    if (efek->sisaTurn <= 0)
+    {
+        cout << "Efek \"" << efek->nama
+             << "\" telah berakhir.\n";
 
-            cout << endl;
-        }
-
-        if (efek->lingkungan != 0)
-        {
-            cout << "Lingkungan ";
-
-            if (efek->lingkungan > 0)
-                cout << "+" << efek->lingkungan;
-            else
-                cout << efek->lingkungan;
-
-            cout << endl;
-        }
-
-        cout << "Sisa Turn : " << efek->sisaTurn << endl;
+        dequeueEfek(q);
+    }
 }
 
 void menuUtama() {
@@ -529,22 +508,7 @@ void menuUtama() {
         else if (pilihan == "r" || pilihan == "R") {
             clearScreen();
             showDecisionHistory(decisionHistory);
-
-            cout << "Input 'p' untuk menghapus riwayat terakhir\n";
-            cout << "Tekan 'enter' untuk kembali...";
-            cin.ignore();
-            getline(cin, konfirmasi);
-
-            if (konfirmasi == "p" || konfirmasi == "P") {
-                if (popDecisionHistory(decisionHistory)) {
-                    cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
-                } else {
-                    cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
-                }
-
-                cout << "Tekan 'enter' untuk kembali...";
-                getline(cin, konfirmasi);
-            }
+            pauseScreen();
         }
         else {
             cout << "Pilihan tidak valid.\n";
@@ -617,7 +581,8 @@ void jalankanTree(
     DecisionHistoryStack &decisionHistory,
     int bulan,
     int tahun,
-    int bulan_dalam_tahun
+    int bulan_dalam_tahun,
+    QueueEfek &efekAktif
 )
 {
     Peristiwa* current = root;
@@ -655,17 +620,31 @@ void jalankanTree(
 
         if (pilih == "1")
         {
-            terapkanKeputusan(pemain, current->keputusan_1);
+            terapkanKeputusan(
+                pemain,
+                current->keputusan_1,
+                efekAktif
+            );
 
-            tampilkanEfek(pemain, current->keputusan_1);
+            tampilkanEfek(
+                pemain,
+                current->keputusan_1
+            );
 
             current = current->pilihan_1;
         }
         else if (pilih == "2")
         {
-            terapkanKeputusan(pemain, current->keputusan_2);
+            terapkanKeputusan(
+                pemain,
+                current->keputusan_2,
+                efekAktif
+            );
 
-            tampilkanEfek(pemain, current->keputusan_2);
+            tampilkanEfek(
+                pemain,
+                current->keputusan_2
+            );
 
             current = current->pilihan_2;
         }
@@ -732,6 +711,7 @@ void jalankanTree(
                     cout << "Pilihan tidak valid.\n";
                 }
             }
+            pauseScreen();
         }
         else if (pilih == "r" || pilih == "R")
         {
@@ -754,10 +734,15 @@ void jalankanTree(
             cout << "Pilihan tidak valid!\n";
             delay(800);
         }
+        
     }
 }
 
-void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan) 
+void terapkanKeputusan(
+    Statistik &pemain,
+    const Keputusan &keputusan,
+    QueueEfek &efekAktif
+)
 {
     pemain.ekonomi += keputusan.pengaruhi_ekonomi;
     pemain.masyarakat += keputusan.pengaruhi_masyarakat;
@@ -768,6 +753,14 @@ void terapkanKeputusan(Statistik &pemain, const Keputusan &keputusan)
     batasiStat(pemain.masyarakat);
     batasiStat(pemain.militer);
     batasiStat(pemain.lingkungan);
+
+    if (keputusan.efekTambahan != nullptr)
+    {
+        enqueueEfek(
+            efekAktif,
+            *keputusan.efekTambahan
+        );
+    }
 }
 
 bool periksaKalah(const Statistik &pemain) 
@@ -872,7 +865,8 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
                 decisionHistory,
                 bulan,
                 tahun,
-                bulan_dalam_tahun
+                bulan_dalam_tahun,
+                efekAktif
             );
 
             hapusTree(eventTree);
@@ -919,15 +913,27 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
             cout << endl;
 
             if (pilihan == "1") {
-                terapkanKeputusan(pemain, sekarang.keputusan_1);
+                terapkanKeputusan(
+                    pemain,
+                    sekarang.keputusan_1,
+                    efekAktif
+                );
                 pushDecisionHistory(decisionHistory, bulan, sekarang.keputusan_1.teks);
                 tampilkanEfek(pemain, sekarang.keputusan_1);
+                cout << endl;
+                pauseScreen();
                 break;
             } 
             else if (pilihan == "2") {
-                terapkanKeputusan(pemain, sekarang.keputusan_2);
+                terapkanKeputusan(
+                    pemain,
+                    sekarang.keputusan_2,
+                    efekAktif
+                );
                 pushDecisionHistory(decisionHistory, bulan, sekarang.keputusan_2.teks);
                 tampilkanEfek(pemain, sekarang.keputusan_2);
+                cout << endl;
+                pauseScreen();
                 break;
             }
             else if (pilihan == "q" || pilihan == "Q") {
@@ -983,23 +989,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
             else if (pilihan == "r" || pilihan == "R") {
                 clearScreen();
                 showDecisionHistory(decisionHistory);
-
-                cout << "Input 'p' untuk menghapus riwayat terakhir\n";
-                cout << "Tekan 'enter' untuk kembali...";
-                cin.ignore();
-                getline(cin, konfirmasi);
-
-                if (konfirmasi == "p" || konfirmasi == "P") {
-                    if (popDecisionHistory(decisionHistory)) {
-                        cout << "\nRiwayat keputusan terakhir berhasil dihapus.\n";
-                    } else {
-                        cout << "\nBelum ada riwayat keputusan yang bisa dihapus.\n";
-                    }
-
-                    cout << "Tekan 'enter' untuk kembali...";
-                    getline(cin, konfirmasi);
-                }
-
+                pauseScreen();
                 clearScreen();
 
                 cout << "----------------------------------\n";
@@ -1029,7 +1019,7 @@ void jalankanGame(Statistik &pemain, int bulan_awal, SaveNode* saveList, Decisio
 
     clearScreen();
 
-    if (kalah)
+    if (kalah == true)
     {
         delay(3000);
         cout << "\nGame Berakhir.\n";
